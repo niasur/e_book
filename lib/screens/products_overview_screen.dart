@@ -401,10 +401,13 @@ class _TopAuthorsRowState extends State<TopAuthorsRow> {
   }
 
   Future<void> _fetchAuthorsFromApi() async {
+    const url = "http://172.20.10.4:3000/authors"; // pastikan endpoint ini sesuai dengan json-server kamu
+
     try {
-      final response = await http.get(Uri.parse('http://localhost:3000/authors'));
+      final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
         setState(() {
           _authors = data.map((item) => Author.fromJson(item)).toList();
           _loading = false;
@@ -424,32 +427,34 @@ class _TopAuthorsRowState extends State<TopAuthorsRow> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    if (_authors.isEmpty) {
+      return const Center(child: Text("No authors available."));
+    }
+
     return SizedBox(
       height: 110,
-      child: Center(
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: _authors.length,
-          itemBuilder: (context, index) {
-            final author = _authors[index];
-            return Column(
-              children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(author.image),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  author.name,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
-            );
-          },
-          separatorBuilder: (_, __) => const SizedBox(width: 16),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _authors.length,
+        itemBuilder: (context, index) {
+          final author = _authors[index];
+          return Column(
+            children: [
+              CircleAvatar(
+                radius: 35,
+                backgroundImage: NetworkImage(author.image),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                author.name,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ],
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
         ),
-      ),
     );
   }
 }
